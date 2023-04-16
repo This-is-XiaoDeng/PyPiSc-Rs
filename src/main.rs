@@ -11,7 +11,7 @@ async fn main() -> Result<(), reqwest::Error> {
     println!(
         "{} {} {}",
         "PyPiSc-Rs".cyan(),
-        "[Version: 0.1]".green(),
+        "[Version: 1.0]".green(),
         "(By This-is-XiaoDeng)".yellow()
     );
     // 解析参数
