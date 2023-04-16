@@ -2,6 +2,7 @@ use colored::Colorize;
 mod list;
 use std::env;
 use reqwest;
+mod search;
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
@@ -24,10 +25,13 @@ async fn main() -> Result<(), reqwest::Error> {
     } else if args[1] == "help" {
         println!("{} list [name]: List packages by [name]", args[0]);
         println!("{} help: Show this help", args[0]);
-        println!("{} update: Update cache", args[0])
+        println!("{} update: Update cache", args[0]);
+        println!("{} search <name>: Search package on pypi.org", args[0]);
     } else if args[1] == "update" {
         println!("Updating cache ...");
         list::make_cache().await?;
+    } else if args[1] == "search" {
+        search::search_package(args[2].clone()).await.unwrap();
     }
     Ok(())
 }
