@@ -1,4 +1,5 @@
-use std::path::Path;
+use std::io::Write;
+use std::{path::Path, io};
 use std::env;
 use colored::Colorize;
 use http::{header::USER_AGENT, HeaderMap, HeaderValue};
@@ -48,14 +49,16 @@ pub async fn make_cache() -> Result<(), reqwest::Error> {
     Ok(())
 }
 
-pub async fn list_package(_selector: String) -> Result<(), reqwest::Error> {
+pub async fn list_package(_selector: String, single_display: u64) -> Result<(), reqwest::Error> {
     print!("Getting packages list ... ");
+    io::stdout().flush().unwrap();
     let working_dir: String = env::temp_dir().display().to_string();
     if !Path::new(format!("{}/cache.json", working_dir).as_str()).exists() {
         make_cache().await?;
     }
     let packages = load_cache();
     println!("{}", "Done".green());
+    let mut displayed: u64 = 0;
 
     for package_name in packages {
         // let package_name = el.inner_html();
@@ -65,6 +68,15 @@ pub async fn list_package(_selector: String) -> Result<(), reqwest::Error> {
             let python_type = get_python_type(file_name.clone());
 
             println!("{} {} {}", package_name.green(),version, python_type.bright_black());
+            displayed += 1;
+
+            if displayed >= single_display {
+                print!("Press enter to contiune ...");
+                io::stdout().flush().unwrap();
+                let mut _input = String::new();
+                io::stdin().read_line(&mut _input).unwrap();
+                displayed = 0;
+            }
         }
     }
     Ok(())

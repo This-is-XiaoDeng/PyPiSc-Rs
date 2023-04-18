@@ -40,7 +40,7 @@ fn get_create_time(package: &Html) -> Result<String, ()> {
     return Err(());
 }
 
-pub async fn search_package(name: String) -> Result<(), ()> {
+pub async fn search_package(name: String, single_display: u64) -> Result<(), ()> {
     let mut p = 1;
     loop {
         // println!("getting page {}", p);
