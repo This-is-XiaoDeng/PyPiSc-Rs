@@ -54,10 +54,19 @@ async fn main() -> Result<(), reqwest::Error> {
         }
         list::list_package(args[2].clone(), single_display).await?;
     } else if args[1] == "help" {
-        println!("{} list [name]: List packages by [name]", args[0]);
-        println!("{} help: Show this help", args[0]);
-        println!("{} update: Update cache", args[0]);
-        println!("{} search <name>: Search package on pypi.org", args[0]);
+        println!("Usage: {} {{help|list|update|search}} [arguments...]", args[0]);        
+        println!("\nCommands:");
+        println!("\tlist [name]      - List modules");
+        println!("\tsearch <keyword> - Search modules on pypi.org");
+        println!("\tupdate           - Update modules cache");
+        println!("\thelp             - Show this help");
+        println!("\nArguments:");
+        println!("\tname    - Package name");
+        println!("\tkeyword - Key word");
+        println!("\nOptions:");
+        println!("\t--single-display <count> (-s)   - Single display packages count");
+        
+
     } else if args[1] == "update" {
         println!("Updating cache ...");
         list::make_cache().await?;
