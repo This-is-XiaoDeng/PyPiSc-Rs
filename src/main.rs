@@ -1,6 +1,6 @@
 use colored::Colorize;
 mod list;
-use std::{env, u64::MAX};
+use std::{env, u64::MAX, process::Command};
 use reqwest;
 mod search;
 
@@ -65,13 +65,16 @@ async fn main() -> Result<(), reqwest::Error> {
         println!("\tkeyword - Key word");
         println!("\nOptions:");
         println!("\t--single-display <count> (-s)   - Single display packages count");
-        
-
     } else if args[1] == "update" {
         println!("Updating cache ...");
         list::make_cache().await?;
     } else if args[1] == "search" {
         search::search_package(args[2].clone(), single_display).await.unwrap();
+    } else {
+        let mut cmd = Command::new("python3");
+        cmd.arg("-m").arg("pip").args(&args[1..]);
+        let output = cmd.output().unwrap();
+        println!("{}", String::from_utf8_lossy(&output.stdout));
     }
     Ok(())
 }
