@@ -1,3 +1,5 @@
+use std::io::{self, Write};
+
 use reqwest;
 use scraper::{Html, Selector};
 use colored::Colorize;
@@ -42,6 +44,7 @@ fn get_create_time(package: &Html) -> Result<String, ()> {
 
 pub async fn search_package(name: String, single_display: u64) -> Result<(), ()> {
     let mut p = 1;
+    let mut displayed = 0;
     loop {
         // println!("getting page {}", p);
         let page = get_page(&name, p).await.unwrap();
@@ -55,7 +58,16 @@ pub async fn search_package(name: String, single_display: u64) -> Result<(), ()>
             let description = get_package_data(&package, "description").unwrap();
             let created = get_create_time(&package).unwrap();
             println!("{} {} {}", name.green(), version, created.bright_black());
-            println!("  {}\n", description)
+            println!("  {}\n", description);
+
+            displayed += 1;
+            if displayed >= single_display {
+                print!("Press enter to contiune ...");
+                io::stdout().flush().unwrap();
+                let mut _input = String::new();
+                io::stdin().read_line(&mut _input).unwrap();
+                displayed = 0;
+            }
         }
         p += 1;
     }
