@@ -26,8 +26,8 @@ async fn get_package_list() -> Result<Html, reqwest::Error> {
     Ok(Html::parse_fragment(&html))
 }
 
-fn get_python_type(file_name: String) -> String {
-    let mut filename_splited = file_name.split("-");
+fn get_python_type(package_name: String, file_name: String) -> String {
+    let filename_splited = &mut file_name[package_name.len()..].split("-");
     if filename_splited.clone().count() >= 3 {
         return filename_splited.nth(2).unwrap().to_string();
     } else {
@@ -64,8 +64,8 @@ pub async fn list_package(_selector: String, single_display: u64) -> Result<(), 
         // let package_name = el.inner_html();
         if package_name.contains(&_selector) {
             let file_name = get_package_file_name(package_name.clone()).await?;
-            let version = get_package_version(file_name.clone());
-            let python_type = get_python_type(file_name.clone());
+            let version = get_package_version(package_name.clone(), file_name.clone());
+            let python_type = get_python_type(package_name.clone(), file_name.clone());
 
             println!("{} {} {}", package_name.green(),version, python_type.bright_black());
             displayed += 1;
@@ -114,8 +114,8 @@ async fn get_package_file_name(package_name: String) -> Result<String, reqwest::
     Ok(file_name)
 }
 
-fn get_package_version(file_name: String) -> String {
-    let mut version = file_name
+fn get_package_version(package_name: String, file_name: String) -> String {
+    let version = &mut file_name[package_name.len()..]
         .split("-");
     if version.clone().count() >= 2 {
         return version.nth(1)
