@@ -1,5 +1,11 @@
+# PyPiSc-Rs
+
+Search on pypi with your terminal.
+
+## Usage
+
+
 ```
-PyPiSc-Rs [Version: 1.0] (By This-is-XiaoDeng)
 Usage: pypisc-rs {help|list|update|search} [arguments...]
 
 Commands:
@@ -14,4 +20,5 @@ Arguments:
 
 Options:
 	--single-display <count> (-s)   - Single display packages count
+	--index <url> (-i)              - Set index url
 ```
