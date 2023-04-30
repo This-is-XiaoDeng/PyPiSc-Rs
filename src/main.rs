@@ -16,6 +16,7 @@ async fn main() -> Result<(), reqwest::Error> {
     );
     
     let mut single_display: u64 = MAX;
+    let mut index_url: String = "https://pypi.tuna.tsinghua.edu.cn/simple".to_string();
     for i in 0..args.len() {
         match args[i].as_str() {
             "--single-display" | "-s" => {
@@ -30,7 +31,13 @@ async fn main() -> Result<(), reqwest::Error> {
                 } else {
                     println!("Usage: {} {}", "--single-display".green(), "<count>".red());
                 }
-                break
+            }
+            "--index" | "-i" => {
+                if i != args.len() - 1 {
+                    index_url = args[i+1].clone();
+                } else {
+                    println!("Usage: {} {}", "--index".green(), "<url>".red())
+                }
             }
             _ => {
                 if args[i].contains("-s") {
@@ -41,6 +48,8 @@ async fn main() -> Result<(), reqwest::Error> {
                             break
                         }
                     }
+                } else if args[i].contains("-i") {
+                    index_url = args[i].replace("-i", "");
                 }
             }
         }
@@ -52,7 +61,7 @@ async fn main() -> Result<(), reqwest::Error> {
         if args.len() == 2 {
             args[2] = "".to_string();
         }
-        list::list_package(args[2].clone(), single_display).await?;
+        list::list_package(args[2].clone(), single_display, index_url).await?;
     } else if args[1] == "help" {
         println!("Usage: {} {{help|list|update|search}} [arguments...]", args[0]);        
         println!("\nCommands:");
@@ -65,9 +74,10 @@ async fn main() -> Result<(), reqwest::Error> {
         println!("\tkeyword - Key word");
         println!("\nOptions:");
         println!("\t--single-display <count> (-s)   - Single display packages count");
+        println!("\t--index <url> (-i)              - Set index url");
     } else if args[1] == "update" {
         println!("Updating cache ...");
-        list::make_cache().await?;
+        list::make_cache(&index_url).await?;
     } else if args[1] == "search" {
         search::search_package(args[2].clone(), single_display).await.unwrap();
     } else {

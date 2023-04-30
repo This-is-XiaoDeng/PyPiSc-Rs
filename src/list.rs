@@ -15,9 +15,9 @@ fn get_header() -> HeaderMap {
     headers
 }
 
-async fn get_package_list() -> Result<Html, reqwest::Error> {
+async fn get_package_list(index_url: &String) -> Result<Html, reqwest::Error> {
     let html = reqwest::Client::new()
-        .get("https://pypi.tuna.tsinghua.edu.cn/simple")
+        .get(index_url)
         .headers(get_header())
         .send()
         .await?
@@ -35,8 +35,8 @@ fn get_python_type(package_name: String, file_name: String) -> String {
     }
 }
 
-pub async fn make_cache() -> Result<(), reqwest::Error> {
-    let doc = match get_package_list().await {
+pub async fn make_cache(index_url: &String) -> Result<(), reqwest::Error> {
+    let doc = match get_package_list(index_url).await {
         Ok(d) => d,
         Err(e) => return Err(e)
     };
@@ -49,12 +49,12 @@ pub async fn make_cache() -> Result<(), reqwest::Error> {
     Ok(())
 }
 
-pub async fn list_package(_selector: String, single_display: u64) -> Result<(), reqwest::Error> {
+pub async fn list_package(_selector: String, single_display: u64, index_url: String) -> Result<(), reqwest::Error> {
     print!("Getting packages list ... ");
     io::stdout().flush().unwrap();
     let working_dir: String = env::temp_dir().display().to_string();
     if !Path::new(format!("{}/cache.json", working_dir).as_str()).exists() {
-        make_cache().await?;
+        make_cache(&index_url).await?;
     }
     let packages = load_cache();
     println!("{}", "Done".green());
@@ -63,7 +63,7 @@ pub async fn list_package(_selector: String, single_display: u64) -> Result<(), 
     for package_name in packages {
         // let package_name = el.inner_html();
         if package_name.contains(&_selector) {
-            let file_name = get_package_file_name(package_name.clone()).await?;
+            let file_name = get_package_file_name(package_name.clone(), &index_url).await?;
             let version = get_package_version(package_name.clone(), file_name.clone());
             let python_type = get_python_type(package_name.clone(), file_name.clone());
 
@@ -82,10 +82,11 @@ pub async fn list_package(_selector: String, single_display: u64) -> Result<(), 
     Ok(())
 }
 
-async fn get_package_file_name(package_name: String) -> Result<String, reqwest::Error> {
+async fn get_package_file_name(package_name: String, index_url: &String) -> Result<String, reqwest::Error> {
     let html = reqwest::Client::new()
         .get(format!(
-            "https://pypi.tuna.tsinghua.edu.cn/simple/{}",
+            "{}/{}",
+            index_url,
             package_name
         ))
         .headers(get_header())
