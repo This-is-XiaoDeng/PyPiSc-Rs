@@ -2,7 +2,7 @@
 
 Search on pypi with your terminal.
 
-### 本仓库已经归档
+## 本仓库已经归档
 
 由于技术过时，本仓库已经归档，不再接受新的贡献或提供支持。
 
